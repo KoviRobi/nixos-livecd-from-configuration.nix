@@ -230,7 +230,7 @@ in
         config.system.build.toplevel.drvPath;
 
     # Create the squashfs image that contains the Nix store.
-    system.build.squashfsStore = import ../../../lib/make-squashfs.nix {
+    system.build.squashfsStore = import /home/kr2/.nix-defexpr/channels/nixos/nixos/lib/make-squashfs.nix {
       inherit (pkgs) stdenv squashfsTools perl pathsFromGraph;
       storeContents = config.isoImage.storeContents;
     };
