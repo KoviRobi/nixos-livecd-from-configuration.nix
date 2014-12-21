@@ -1,0 +1,55 @@
+--- /home/kr2/.nix-defexpr/channels/nixos/nixpkgs/nixos/modules/installer/cd-dvd/iso-image.nix	1970-01-01 01:00:01.000000000 +0100
++++ iso-image-rmk35.nix	2014-12-20 23:53:10.952122740 +0000
+@@ -58,8 +58,9 @@
+ 
+   efiImg = pkgs.runCommand "efi-image_eltorito" { buildInputs = [ pkgs.mtools ]; }
+     ''
+-      #Let's hope 10M is enough
+-      dd bs=2048 count=5120 if=/dev/zero of="$out"
++      #Let's hope 20M is enough
++      #10M was not....
++      dd bs=2048 count=10240 if=/dev/zero of="$out"
+       ${pkgs.dosfstools}/sbin/mkfs.vfat "$out"
+       mcopy -svi "$out" ${efiDir}/* ::
+       mmd -i "$out" boot
+@@ -158,11 +159,12 @@
+ 
+   config = {
+ 
+-    boot.loader.grub.version = 2;
++    # mkOverride as I have this set in my live-configuration.nix
++    boot.loader.grub.version = mkOverride 80 2;
+ 
+     # Don't build the GRUB menu builder script, since we don't need it
+     # here and it causes a cyclic dependency.
+-    boot.loader.grub.enable = false;
++    boot.loader.grub.enable = mkOverride 80 false;
+ 
+     # !!! Hack - attributes expected by other modules.
+     system.boot.loader.kernelFile = "bzImage";
+@@ -287,10 +289,11 @@
+         }
+       '';
+ 
+-    boot.loader.grub.timeout = 10;
++    boot.loader.grub.timeout = mkOverride 80 10;
+ 
+     # Create the ISO image.
+-    system.build.isoImage = import ../../../lib/make-iso9660-image.nix ({
++    # Replaced relative path with an absolute one
++    system.build.isoImage = import /home/kr2/.nix-defexpr/channels/nixos/nixos/lib/make-iso9660-image.nix ({
+       inherit (pkgs) stdenv perl cdrkit pathsFromGraph;
+ 
+       inherit (config.isoImage) isoName compressImage volumeID contents;
+@@ -315,8 +318,9 @@
+       '';
+ 
+     # Add vfat support to the initrd to enable people to copy the
+-    # contents of the CD to a bootable USB stick.
+-    boot.initrd.supportedFilesystems = [ "vfat" ];
++    # contents of the CD to a bootable USB stick. Need unionfs-fuse for union mounts
++    # and udf for the filesystem, instead of vfat
++    boot.initrd.supportedFilesystems = [ "udf" "unionfs-fuse" ];
+ 
+   };
+ 
