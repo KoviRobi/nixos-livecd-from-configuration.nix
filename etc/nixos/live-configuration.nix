@@ -12,8 +12,8 @@
     ./prog-languages.nix
     ./x11-configuration.nix
     ./tex-configuration.nix
-    ./containers.nix
     ./networking-configuration.nix
+    ./containers.nix
   ];
 
   # Override this from the installation-cd-rmk35.nix included option, as I want sudo
